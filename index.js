@@ -5,6 +5,7 @@ var _ = require('lodash');
 var winston = require('winston');
 var ambient = require('ambient-attx4').use(tessel.port.B);
 var async = require('async');
+var climate = require('climate-si7020').use(tessel.port.C);
 
 var led1 = tessel.led[0].output(1);
 var led2 = tessel.led[1].output(0);
@@ -35,7 +36,23 @@ ambient.on('ready', function() {
         ambient.getSoundLevel(cb);
       }
     }, function(err, data) {
-      if (err) winston.error(err);  
+      if (err) return winston.error(err);  
+      winston.info(data);
+    });
+  }, 1000);
+});
+
+climate.on('ready', function() {
+  setInterval(function() {
+    async.parallel({
+      temperature: function(cb) {
+        climate.readTemperature('f', cb);
+      },
+      humidity: function(cb) {
+        climate.readHumidity(cb);  
+      }
+    }, function(err, data) {
+      if (err) return winston.error(err);
       winston.info(data);
     });
   }, 1000);
