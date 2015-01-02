@@ -11,6 +11,7 @@
     "accel-mma84": "^0.2.3",
     "ambient-attx4": "^0.2.4",
     "async": "^0.9.0",
+    "camera-vc0706": "^0.1.7",
     "climate-si7020": "^0.1.1",
     "lodash": "^2.4.1",
     "tessel": "^0.3.19",

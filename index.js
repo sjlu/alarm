@@ -6,6 +6,7 @@ var winston = require('winston');
 var ambient = require('ambient-attx4').use(tessel.port.B);
 var async = require('async');
 var climate = require('climate-si7020').use(tessel.port.C);
+var camera = require('camera-vc0706').use(tessel.port.D);
 
 var led1 = tessel.led[0].output(1);
 var led2 = tessel.led[1].output(0);
@@ -56,4 +57,12 @@ climate.on('ready', function() {
       winston.info(data);
     });
   }, 1000);
+});
+
+camera.on('ready', function() {
+  camera.takePicture(function(err, image) {
+    if (err) return winston.error(err);
+    process.sendfile('photo.jpg', image);
+    winston.info('photo taken');
+  });
 });
