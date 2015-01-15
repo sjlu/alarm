@@ -2,7 +2,7 @@
   "name": "alarm",
   "version": "0.0.1",
   "description": "",
-  "main": "application.cpp",
+  "main": "alarm.ino",
   "scripts": {
     "start": "tessel run index.js"
   },
