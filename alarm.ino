@@ -18,7 +18,7 @@ void setup() {
 
 void loop() {
 
-  int pre_pressure = analogRead(A0) / 35;
+  pressure = analogRead(A0) / 35;
 
   if (pressure > threshold) {
     if (!in_bed) {
