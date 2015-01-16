@@ -1,9 +1,9 @@
 // the amount in which a person is in bed or not
-int THRESHOLD = 80;
+int THRESHOLD = 70;
 
 // how long should we delay before we
 // register an action?
-int DELAY_MIN = 600;
+int DELAY_MIN = 900;
 
 // pressure seems to range anywhere from
 // 0 - 3500? Dividing this number by 35
