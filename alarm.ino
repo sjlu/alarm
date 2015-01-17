@@ -45,12 +45,6 @@ void setup() {
   // set the timezone
   // TODO: this should be synced from server
   Time.zone(TIMEZONE);
-
-  // Request time synchronization from the Spark Cloud
-  if (millis() - lastSync > 86400000) { // 1 day
-    Spark.syncTime();
-    lastSync = millis();
-  }
 }
 
 // loop runs about every 5-15ms
@@ -59,6 +53,8 @@ void loop() {
   // read the input
   pressure = analogRead(PRESSURE_PIN) / 35;
 
+  // if the input has changed
+  // increment the delay timer
   boolean in_bed_read = pressure > THRESHOLD;
   if (in_bed_read != in_bed) {
     delay_time = delay_time + 1;
@@ -66,18 +62,21 @@ void loop() {
     delay_time = 0;
   }
 
+  // if the delay timer has reached
+  // the minimum amount of time to switch
+  // then we switch and accounce
   if (delay_time > DELAY_MIN) {
     in_bed = in_bed_read;
     Spark.publish("alarm/is_in_bed", in_bed ? "true" : "false", 60, PRIVATE);
     delay_time = 0;
   }
 
+  // if they are in bed, and we have reached the appropriate
+  // time, we want to start the alarm, else we just turn it off
   if (in_bed && Time.hour() >= ALARM_HOUR && (Time.hour() - ALARM_HOUR > 0 || Time.minute() > ALARM_MINUTE)) {
     tone(SPEAKER_PIN, 1908, 0);
   } else {
     noTone(SPEAKER_PIN);
   }
-
-  tone(SPEAKER_PIN, 1908, 0);
 
 }
