@@ -79,4 +79,10 @@ void loop() {
     noTone(SPEAKER_PIN);
   }
 
+  // Request time synchronization from the Spark Cloud
+  if (millis() - lastSync > 86400000) { // 1 day
+    Spark.syncTime();
+    lastSync = millis();
+  }
+
 }
