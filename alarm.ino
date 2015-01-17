@@ -34,7 +34,19 @@ boolean in_bed = false;
 int delay_time = 0;
 
 // time since last sync
-unsigned long lastSync = millis();
+unsigned long last_sync = millis();
+
+boolean previous_alarm_state = false;
+void trigger_alarm(boolean state) {
+  if (previous_alarm_state != state) {
+    if (state) {
+      tone(SPEAKER_PIN, 1908, 0);
+    } else {
+      noTone(SPEAKER_PIN);
+    }
+    previous_alarm_state = state;
+  }
+}
 
 void setup() {
   // register variables to be red
@@ -73,16 +85,20 @@ void loop() {
 
   // if they are in bed, and we have reached the appropriate
   // time, we want to start the alarm, else we just turn it off
-  if (in_bed && Time.hour() >= ALARM_HOUR && (Time.hour() - ALARM_HOUR > 0 || Time.minute() > ALARM_MINUTE)) {
-    tone(SPEAKER_PIN, 1908, 0);
+  if (in_bed_read && Time.hour() >= ALARM_HOUR && (Time.hour() - ALARM_HOUR > 0 || Time.minute() > ALARM_MINUTE)) {
+    // this causes a delay when activating the alarm
+    // but instantly deactivates when out of bed
+    if (in_bed) {
+      trigger_alarm(true);
+    }
   } else {
-    noTone(SPEAKER_PIN);
+    trigger_alarm(false);
   }
 
   // Request time synchronization from the Spark Cloud
-  if (millis() - lastSync > 86400000) { // 1 day
+  if (millis() - last_sync > 86400000) { // 1 day
     Spark.syncTime();
-    lastSync = millis();
+    last_sync = millis();
   }
 
 }
