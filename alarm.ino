@@ -7,6 +7,8 @@
 
 // EEPROM locations
 #define EEPROM_TIMEZONE 0
+#define EEPROM_HOUR 1
+#define EEPROM_MINUTE 2
 
 // Configure the pins
 #define PIN_SPEAKER A1
@@ -16,8 +18,9 @@
 int timezone = 0;
 
 // what time should the alarm be?
-int alarm_hour = 9;
-int alarm_minute = 0;
+int alarm_time = 2561;
+int alarm_hour = 25;
+int alarm_minute = 61;
 
 // pressure seems to range anywhere from
 // 0 - 3500? Dividing this number by 35
@@ -62,7 +65,22 @@ int set_timezone(String zone) {
   return 1;
 }
 
+int set_alarm(String time) {
+  alarm_time = time.toInt();
+  alarm_hour = alarm_time / 100;
+  alarm_minute = alarm_time % 100;
+
+  EEPROM.write(EEPROM_HOUR, alarm_hour);
+  EEPROM.write(EEPROM_MINUTE, alarm_minute);
+
+  return 1;
+}
+
 void setup() {
+  alarm_hour = EEPROM.read(EEPROM_HOUR);
+  alarm_minute = EEPROM.read(EEPROM_MINUTE);
+  alarm_time = (alarm_hour * 100) + alarm_minute;
+
   // funny thing is that the EEPROM doesn't
   // store negative values, so we're gonna
   // convert it here.
@@ -71,6 +89,9 @@ void setup() {
     timezone = (256 - timezone) * -1;
   }
 
+  // set the timezone
+  Time.zone(timezone);
+
   // register variables to be red
   // by the hub
   Spark.variable("pressure", &pressure, INT);
@@ -78,14 +99,12 @@ void setup() {
   Spark.variable("timezone", &timezone, INT);
   Spark.variable("hour", &current_hour, INT);
   Spark.variable("minute", &current_minute, INT);
+  Spark.variable("alarm", &alarm_time, INT);
 
   // register functions callable
   // by the hub
   Spark.function("set_timezone", set_timezone);
-
-  // set the timezone
-  // TODO: this should be synced from server
-  Time.zone(timezone);
+  Spark.function("set_alarm", set_alarm);
 }
 
 // loop runs about every 5-15ms
